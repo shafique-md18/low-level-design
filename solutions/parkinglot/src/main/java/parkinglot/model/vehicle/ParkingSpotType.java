@@ -1,4 +1,4 @@
-package model.vehicle;
+package parkinglot.model.vehicle;
 
 public enum ParkingSpotType {
     
