@@ -1,4 +1,4 @@
-package parkinglot.model.vehicle;
+package model.vehicle;
 
 public class Vehicle {
 }
