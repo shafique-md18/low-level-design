@@ -58,6 +58,8 @@ classDiagram
         +getGame(String gameId) // helper to fetch the saved game
         
     }
+    GameUI <|-- ConsoleUI
+    ConsoleUI o-- GameController
     class GameUI {
         <<interface>>
         start()
