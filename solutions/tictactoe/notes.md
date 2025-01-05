@@ -1,10 +1,38 @@
-## TicTacToe Class Diagram
+## TicTacToe Game
+
+### Requirements
+
+1. The Tic-Tac-Toe game should be played on a 3x3 grid.
+2. Two players take turns marking their symbols (X or O) on the grid.
+3. The first player to get three of their symbols in a row (horizontally, vertically, or diagonally) wins the game.
+4. If all the cells on the grid are filled and no player has won, the game ends in a draw.
+5. The game should have a user interface to display the grid and allow players to make their moves.
+6. The game should handle player turns and validate moves to ensure they are legal.
+7. The game should detect and announce the winner or a draw at the end of the game.
+
+### Class Diagram
 
 ```mermaid
 classDiagram
     Game *-- GameStatus
     Game o-- Player
     Game *-- WinningStrategy
+    Game *-- Board
+    Game *-- Move
+    class Move {
+        -playerSymbol : PlayerSymbol
+        -position : Position
+        -timestamp : LocalDateTime
+    }
+    class Board {
+        -SIZE : int // final
+        -grid : PlayerSymbol[][] // final
+        -slotsFilled : int
+        +isFull() : boolean
+        +isValidPosition(Position position) : boolean
+        +isSlotAvailable(Position position) : boolean
+        +makeMove(Move move)
+    }
     class GameStatus {
         <<enumeration>>
         ONGOING
@@ -13,24 +41,23 @@ classDiagram
     }
     class Game {
         -id : String
-        -board : Player[][]
+        -board : Board
         -winner : Player
         -status : GameStatus
         -startTime : LocalDateTime
         -endTime : LocalDateTime
         -currentPlayer : Player
         -players : Queue<Player>
+        // Can add undo-redo moves functionality
+        -moves : Stack<Move> // can be moved to MoveHistory for better encapsulation
         -playerSymbolMap : Map<Player, PlayerSymbolMap>
         -winningStrategy : WinningStrategy
-        -boardSize : int
-        -slotsFilled : int
         +makeMove(Position position) : GameStatus
-        -isDraw()
-        -isValidPosition(Position position)
-        -isSlotAvailable(Position position)
     }
     class Player {
-        
+        -id : String
+        -name : String
+        -isActive : boolean
     }
     class PlayerSymbol {
         <<enumeration>>
@@ -44,7 +71,7 @@ classDiagram
     WinningStrategy <|-- DefaultWinningStrategy
     class WinningStrategy {
         <<interface>>
-        +checkWin(Player[][] board, Position position) : GameStatus
+        +checkGameStatus(Board board, Position position) : GameStatus
     }
     class DefaultWinningStrategy {
         
@@ -74,6 +101,13 @@ classDiagram
         -games : Map<String, Game>
         -instance : GameService
     }
+    GameNotFoundException <|-- Exception
+    GameAlreadyOverException <|-- Exception
+    InvalidGameConfigurationException <|-- Exception
+    InvalidMoveException <|-- Exception
+    class Exception {
+    
+    }
     class GameNotFoundException {
         
     }
@@ -88,7 +122,7 @@ classDiagram
     }
 ```
 
-Other considerations:
+### Other considerations:
 1. Exception Handling
 2. MoveHistory and Undo Support
 ```java
