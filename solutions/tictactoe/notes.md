@@ -98,7 +98,7 @@ classDiagram
     }
     GameService o-- Game
     class GameService { // singleton
-        -games : Map<String, Game>
+        -games : ConcurrentHashMap<String, Game>
         -instance : GameService
     }
     GameNotFoundException <|-- Exception
@@ -167,3 +167,15 @@ class Game {
 4. Input validation layer
 5. Metrics collection (moves per game, win rates, etc.)
 6. Game Save and Resume using Momento design pattern
+
+#### Key Synchronization Considerations:
+1. Use ReentrantLock for game state changes
+2. Use ReadWriteLock for board operations
+3. Use ConcurrentHashMap for games collection
+4. Use ConcurrentLinkedDeque for move history
+5. Ensure atomic operations for state changes
+
+#### The synchronization approach depends on your specific requirements:
+1. If it's a single JVM application: Basic locks are sufficient
+2. If it's distributed: Need distributed locks (like Redis)
+3. If real-time multiplayer: Consider event-driven architecture
