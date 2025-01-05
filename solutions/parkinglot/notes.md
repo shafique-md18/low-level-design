@@ -24,8 +24,8 @@ classDiagram
 	class Truck {
 		
 	}
-    ParkingSpot o-- ParkingSpotType : "Has"
-    ParkingSpot o-- Vehicle : "Has"
+    ParkingSpot o-- ParkingSpotType
+    ParkingSpot o-- Vehicle
 	class ParkingSpotType {
         <<enumeration>>
 		MOTORCYCLE
@@ -45,16 +45,6 @@ classDiagram
 		+vacateSpot()
 		-canAccomodate(Vehicle vehicle)
 	}
-    ParkingSpotManager o-- ParkingSpot : "Manages"
-    ParkingFloor *-- ParkingSpotManager : "Contains"
-    ParkingLot *-- ParkingFloor : "Contains"
-    ParkingLot *-- EntranceGate : "Contains"
-    ParkingLot *-- ExitGate : "Contains"
-    ParkingLot *-- ParkingLotDetails : "Contains"
-    ParkingLot o-- ParkingTicket : "Contains"
-    ParkingLotDetails *-- Location : "Contains"
-    Gate <|-- EntranceGate : "Is"
-    Gate <|-- ExitGate : "Is"
 	class Location {
 		-streetAddress : String
 		-city : String
@@ -62,11 +52,14 @@ classDiagram
 		-zipcode : String
 		-country : String
 	}
+    ParkingLotDetails *-- Location
 	class ParkingLotDetails {
 		-location : Location
 		-name : String
 		-contactNumber : String
 	}
+    Gate <|-- EntranceGate
+    Gate <|-- ExitGate
 	class Gate {
         <<abstract>>
 		-id : String
@@ -78,7 +71,9 @@ classDiagram
 	class ExitGate {
 		
 	}
+    ParkingSpotManager o-- ParkingSpot
 	class ParkingSpotManager {
+	    // We can fetch the parking spots from a repository
 		-parkingSpots : Set<ParkingSpot>
 		-spotAllocationStrategy : SpotAllocationStrategy
 		+assignSpot(EntranceGate gate, Vehicle vehicle) : ParkingSpot
@@ -86,19 +81,24 @@ classDiagram
 		+addParkingSpot(ParkingSpot parkingSpot)
 		+removeParkingSpot(ParkingSpot parkingSpot)
 	}
+    ParkingFloor *-- ParkingSpotManager
 	class ParkingFloor {
 		-id : String
 		-parkingSpotManager : ParkingSpotManager
 		-isActive : boolean
 	}
-    CashPaymentStrategy ..|> PaymentStrategy : Implements
-    UpiPaymentStrategy ..|> PaymentStrategy : Implements
     DefaultSpotAllocationStrategy ..|> SpotAllocationStrategy : Implements
     NearestToEntranceSpotAllocationStrategy ..|> SpotAllocationStrategy : Implements
     ParkingTicket o-- Vehicle : "Has"
     ParkingTicket o-- ParkingSpot : "Has"
     ParkingTicket o-- EntranceGate : "Has"
     ParkingTicket o-- ExitGate : "Has"
+    ParkingTicket *-- ParkingTicketStatus : "Has"
+    class ParkingTicketStatus {
+        <<enumeration>>
+        ACTIVE,
+        PAID
+    }
 	class ParkingTicket {
 		-id : String
 		-vehicle : Vehicle
@@ -108,6 +108,7 @@ classDiagram
 		-exitGate : ExitGate
 		-entryTime : LocalDateTime
 		-exitTime : LocalDateTime
+		-status : ParkingTicketStatus
 	}
     ParkingRateStrategy <|-- HourlyParkingRateStrategy : "Is"
     class ParkingRateStrategy {
@@ -118,6 +119,12 @@ classDiagram
 
     }
     ParkingLot o-- ParkingRateStrategy : "Has"
+    ParkingLot *-- ParkingFloor
+    ParkingLot *-- EntranceGate
+    ParkingLot *-- ExitGate
+    ParkingLot *-- ParkingLotDetails
+    ParkingLot o-- ParkingTicket
+    ParkingLot o-- TransactionService
 	class ParkingLot {
 		-id : String
 		-parkingLotDetails : ParkingLotDetails
@@ -126,6 +133,7 @@ classDiagram
 		-exitGates : Map<String, ExitGate>
 		-parkingTickets : Map<String, ParkingTicket>
 		-isActive : boolean
+		-transactionService : TransactionService
 		+addParkingFloor(ParkingFloor floor)
 		+removeParkingFloor(ParkingFloor floor)
 		+addEntranceGate(EntranceGate gate)
@@ -133,8 +141,7 @@ classDiagram
 		+removeEntranceGate(EntranceGate gate)
 		+removeExitGate(ExitGate gate)
 		+allocateSpotAndGenerateTicket(EntranceGate gate, Vehicle vehicle) : ParkingTicket
-		+deallocateSpotAndProcessPayment(ExitGate gate, ParkingTicket parkingTicket) : ParkingTicket // or receipt
-
+		+deallocateSpotAndProcessPayment(ExitGate gate, ParkingTicket parkingTicket) : ParkingReceipt
 	}
 	class PaymentStatus {
         <<enumeration>>
@@ -142,6 +149,14 @@ classDiagram
 		FAILED
 		COMPLETED
 	}
+	class PaymentMethod {
+	    <<enumeration>>
+	    CASH
+	    CARD
+	    UPI
+    }
+    CashPaymentStrategy ..|> PaymentStrategy : Implements
+    UpiPaymentStrategy ..|> PaymentStrategy : Implements
 	class PaymentStrategy {
         <<interface>>
 		+processPayment(double amount) : PaymentStatus
@@ -152,6 +167,22 @@ classDiagram
 	class UpiPaymentStrategy {
 		+processPayment(double amount) : PaymentStatus
 	}
+	class CreditCardPaymentStrategy {
+        +processPayment(double amount) : PaymentStatus
+    }
+	class PaymentStrategyFactory {
+	    // Why do you need factory here? 
+	    //   You might want to set additional configuration of the payment strategies
+	    //   e.g. client creation, client setup, etc.
+	    +createPaymentStrategy(PaymentMethod PaymentMethod) : PaymentStrategy
+    }
+    PaymentReceipt o-- ParkingTicket
+    PaymentReceipt o-- Transaction
+    class PaymentReceipt {
+        -receiptNumber : Transaction
+        -ticket : ParkingTicket
+        -transaction : Transaction
+    }
 	class SpotAllocationStrategy {
         <<interface>>
 		+findAvailableSpot(Vehicle vehicle, Set<ParkingSpot> parkingSpots, EntranceGate entranceGate) : ParkingSpot
@@ -165,13 +196,17 @@ classDiagram
     ParkingLotService o-- ParkingLot : "Has"
 	class ParkingLotService {
 		-parkingLots : Map<String, ParkingLot>
-		-instance : ParkingLotService
+		-instance : ParkingLotService // volatile
 		+getInstance : ParkingLotService // synchronized
 		+addParkingLot(ParkingLot parkingLot)
 		+removeParkingLot(ParkingLot parkingLot)
 		+generateTicket(ParkingLot parkingLot, EntranceGate entranceGate, Vehicle vehicle)
-		+exitVehicle(ParkingLot parkingLot, ExitGate exitGate, ParkingTicket parkingTicket, PaymentStrategy paymentStrategy) : ParkingTicket // or receipt
+		+exitVehicle(ParkingLot parkingLot, ExitGate exitGate, ParkingTicket parkingTicket, PaymentMethod paymentMethod) : ParkingReceipt
 	}
+	Transaction *-- TransactionType
+    Transaction *-- ParkingTicket
+    Transaction *-- TransactionStatus
+    Transaction *-- PaymentMethod
     class TransactionType {
         <<enumeration>>
         PARKING_PAYMENT,
@@ -192,7 +227,7 @@ classDiagram
         -ticket : ParkingTicket
         -amount : double
         -status : TransactionStatus
-        -paymentMethod : PaymentStrategy
+        -paymentMethod : PaymentMethod
         -transactionTime : LocalDateTime
         -referenceId : String // payment gateway reference id
         -metadata : Map<String, String> // additional metadata
@@ -200,27 +235,54 @@ classDiagram
     class TransactionRepository {
         +save(Transaction transaction)
     }
+    TransactionService o-- TransactionRepository
+    TransactionService *-- PaymentStrategyFactory
     class TransactionService {
         -transactionRepository : TransactionRepository
-        -paymentGatewayService : PaymentGatewayService
-        +processPayment(double amount, ParkingTicket ticket, PaymentStrategy paymentStrategy)
+        -paymentStrategyFactory : PaymentStrategyFactory
+        +processPayment(double amount, ParkingTicket ticket, PaymentMethod paymentMethod)
     }
-    class PaymentGatewayService {
-        +processPayment(double amount, PaymentStrategy paymentStrategy)
-    }
-    Transaction o-- TransactionStatus : "Has"
-    Transaction o-- TransactionType : "Has"
-    TransactionService o-- TransactionRepository : "Has"
-    TransactionService o-- PaymentGatewayService : "Has"
 ```
 
 ### Other considerations:
 1. Exception handling for - ParkingLotFull, TransactionFailure, etc.
 2. Auditing - Adding auditing for vehicles entering and leaving the facility.
-3. Instead of hard deleting the entities we should soft delete, using (isActive and deactivatedAt)
+3. Instead of hard-delete the entities we should soft-delete, using (isActive and deactivatedAt)
 4. Events/Observers for system notifications
 5. Validation layer for central validation
 6. Monitoring and metrics capabilities
+7. How to handle transaction idempotency?
+
+#### Key Synchronization Considerations:
+
+1. Use appropriate lock types:
+   1. ReentrantLock for complex locking
+   2. ReadWriteLock for read-heavy scenarios
+   3. Synchronized blocks for simple cases
+2. Make collections thread-safe
+3. Use volatile for single-value concurrency
+4. Implement idempotency where needed
+5. Handle deadlock scenarios.
+6. IMP - How to handle concurrent payments? 
+   1. We need to allow for concurrent payments but not for same tickets.
+   2. For this, we can have -
+    ```java
+    ConcurrentMap<String, Lock> ticketPaymentLocks;
+    public Transaction processPayment(double amount, ParkingTicket ticket, PaymentMethod paymentMethod) {
+        // Get or create a lock specific to this ticket
+        Lock ticketLock = ticketPaymentLocks.computeIfAbsent(
+            ticket.getId(), 
+            k -> new ReentrantLock()
+        );
+
+        try {
+            // Lock only this specific ticket's payment
+            ticketLock.lock();
+        } finally {
+            ticketLock.unlock();
+        }
+    }
+    ```
 
 Summary of When to Use Factory in Your Design:
 Vehicle Creation: Use Factory to create different vehicle types based on user input or configuration.
