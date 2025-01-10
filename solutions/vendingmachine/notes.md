@@ -2,7 +2,35 @@
 
 ### Requirements
 
-### Requirement clarification
+The vending machine should maintain an inventory of products with their respective prices and quantities
+Each product slot in the machine has a unique code (e.g., A1, A2, B1, B2)
+The machine should accept different denominations of coins/notes (e.g., $1, $5, $10, $20)
+
+#### Core operations:
+
+1. Users can select a product using its code
+2. Users can insert money
+3. Machine should calculate remaining change
+4. Machine should dispense the product
+5. Machine should return change if necessary
+
+#### Constraints:
+
+1. If a product is out of stock, the machine should notify the user
+2. If insufficient money is inserted, the machine should ask for more money or allow cancellation
+3. If the machine cannot provide exact change, it should not proceed with the transaction
+4. The machine should maintain a minimum amount of change
+
+##### Additional Features to Consider:
+
+1. Support for canceling a transaction mid-way
+2. Mechanism to refill products and money
+3. Basic maintenance operations (e.g., checking inventory, collecting money)
+4. Error handling for:
+   1. Invalid product selection 
+   2. Machine out of change 
+   3. Product stuck during dispensing 
+   4. Invalid currency
 
 ### Class diagram
 
