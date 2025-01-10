@@ -19,11 +19,11 @@ The machine should accept different denominations of coins/notes (e.g., $1, $5, 
 1. If a product is out of stock, the machine should notify the user
 2. If insufficient money is inserted, the machine should ask for more money or allow cancellation
 3. If the machine cannot provide exact change, it should not proceed with the transaction
-4. The machine should maintain a minimum amount of change
+4. Support for canceling a transaction mid-way
 
 ##### Additional Features to Consider:
 
-1. Support for canceling a transaction mid-way
+1. The machine should maintain a minimum amount of change
 2. Mechanism to refill products and money
 3. Basic maintenance operations (e.g., checking inventory, collecting money)
 4. Error handling for:
