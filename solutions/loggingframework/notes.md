@@ -13,7 +13,85 @@
 
 ```mermaid
 classDiagram
-    
+  class Logger {
+    - LoggerConfig config
+    - BlockingQueue<LogMessage> queue
+    - BlockingQueue<LogMessage> deadLetterQueue
+    - Thread loggingThread
+    + Logger(LoggerConfig config)
+    + void processLogs()
+    + void log(LogMessage message)
+    + void debug(String message)
+    + void info(String message)
+    + void warn(String message)
+    + void error(String message)
+  }
+
+  class LoggerConfig {
+    - LogLevel level
+    - List~Appender~ appenderList
+    + LogLevel getLevel()
+    + List~Appender~ getAppenderList()
+    + void setLevel(LogLevel level)
+    + void setAppenderList(List~Appender~ appenderList)
+  }
+
+  class LogMessage {
+    - LogLevel level
+    - Instant timestamp
+    - String message
+    + LogLevel getLevel()
+    + Instant getTimestamp()
+    + String getMessage()
+  }
+
+  class LogLevel {
+    <<enumeration>>
+    DEBUG
+    INFO
+    WARN
+    ERROR
+  }
+  
+  class Appender {
+    <<interface>>
+    + void append(LogMessage logMessage) throws IOException
+    + void close() throws IOException
+  }
+  
+  class ConsoleAppender {
+    - Layout layout
+    + ConsoleAppender(Layout layout)
+    + void append(LogMessage message)
+    + void close()
+  }
+  
+  class FileAppender {
+    - FileWriter fileWriter
+    - Layout layout
+    + FileAppender(Layout layout, String filePath) throws IOException
+    + void append(LogMessage message) throws IOException
+    + void close() throws IOException
+  }
+  
+  class DefaultPatternLayout {
+  + String format(LogMessage message)
+  }
+  
+  class Layout {
+      <<interface>>
+      + String format(LogMessage message)
+  }
+  %% Container --> ContainedObject
+  Logger --> "1" LoggerConfig
+  LoggerConfig --> "*" Appender
+  Logger --> "*" LogMessage
+  %% Child ..|> Child
+  ConsoleAppender ..|> Appender
+  ConsoleAppender --> Layout
+  FileAppender ..|> Appender
+  FileAppender --> Layout
+  DefaultPatternLayout ..|> Layout
 ```
 
 ### Other considerations:
