@@ -1,0 +1,3 @@
+[INFO][2025-01-11T04:33:30.435472Z]: Starting logs
+[WARN][2025-01-11T04:33:30.435497Z]: Some warn message
+[ERROR][2025-01-11T04:33:30.435499Z]: Some error message
