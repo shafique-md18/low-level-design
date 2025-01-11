@@ -1,7 +1,6 @@
 package vendingmachine.model.state;
 
 import vendingmachine.service.VendingMachineService;
-import vendingmachine.model.denomination.Denomination;
 import vendingmachine.model.inventory.Item;
 
 public class ProductDispenseState implements VendingMachineState {
@@ -12,7 +11,7 @@ public class ProductDispenseState implements VendingMachineState {
     }
 
     @Override
-    public void insertMoney(Denomination denomination) {
+    public void insertMoney(double currentInsertedAmount) {
         throw new IllegalStateException("Operation not allowed in this state");
     }
 

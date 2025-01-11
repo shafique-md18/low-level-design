@@ -1,6 +1,7 @@
 package vendingmachine.service;
 
-import vendingmachine.model.denomination.Denomination;
+import vendingmachine.model.denomination.Coin;
+import vendingmachine.model.denomination.Note;
 import vendingmachine.model.exception.ItemNotExistsException;
 import vendingmachine.model.inventory.Item;
 import vendingmachine.model.state.IdleState;
@@ -21,8 +22,13 @@ public class VendingMachineService {
         this.amountInserted = 0.0;
     }
 
-    public void insertMoney(Denomination denomination) {
-        state.insertMoney(denomination);
+    public void insertCoin(Coin coin) {
+        // State focuses on amount and not payment type
+        state.insertMoney(coin.getValue());
+    }
+
+    public void insertNote(Note note) {
+        state.insertMoney(note.getValue());
     }
 
     public void selectProduct(String productCode) {
@@ -68,6 +74,10 @@ public class VendingMachineService {
         this.amountInserted = amountInserted;
     }
 
+    public void clearAmountInserted() {
+        this.amountInserted = 0.0;
+    }
+
     public String getSelectedProductCode() {
         return selectedProductCode;
     }
@@ -87,4 +97,5 @@ public class VendingMachineService {
     public void setBalance(double balance) {
         this.balance = balance;
     }
+
 }

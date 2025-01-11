@@ -1,7 +1,6 @@
 package vendingmachine.model.state;
 
 import vendingmachine.service.VendingMachineService;
-import vendingmachine.model.denomination.Denomination;
 
 public class ProductSelectionState implements VendingMachineState {
     private final VendingMachineService machine;
@@ -11,7 +10,7 @@ public class ProductSelectionState implements VendingMachineState {
     }
 
     @Override
-    public void insertMoney(Denomination denomination) {
+    public void insertMoney(double currentInsertedAmount) {
         throw new IllegalStateException("Operation not allowed in this state");
     }
 
@@ -23,6 +22,7 @@ public class ProductSelectionState implements VendingMachineState {
             this.machine.setState(new ProductDispenseState(this.machine));
         } else {
             System.out.println("Selected product code is either invalid or out of stock. Please try again.");
+            this.machine.setState(new IdleState(this.machine));
         }
     }
 

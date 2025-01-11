@@ -1,7 +1,6 @@
 package vendingmachine.model.state;
 
 import vendingmachine.service.VendingMachineService;
-import vendingmachine.model.denomination.Denomination;
 
 public class IdleState implements VendingMachineState {
     private final VendingMachineService machine;
@@ -12,11 +11,10 @@ public class IdleState implements VendingMachineState {
     }
 
     @Override
-    public void insertMoney(Denomination denomination) {
-        double amount = machine.getAmountInserted() + denomination.getDenominationValue();
-        System.out.println("Inserting amount - " + denomination.getDenominationValue());
-        System.out.println("Total inserted amount - " + amount);
-        machine.setAmountInserted(amount);
+    public void insertMoney(double currentAmountInserted) {
+        System.out.println("Inserting amount - " + currentAmountInserted);
+        double totalAmount = machine.getAmountInserted() + currentAmountInserted;
+        machine.setAmountInserted(totalAmount);
     }
 
     @Override
