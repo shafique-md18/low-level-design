@@ -39,7 +39,8 @@ public class Logger {
         }
     }
 
-    public synchronized void log(LogMessage message) throws IOException {
+    public void log(LogMessage message) throws IOException {
+        // Blocking Queue is already thread safe
         try {
             this.queue.put(message);
         } catch (InterruptedException e) {
