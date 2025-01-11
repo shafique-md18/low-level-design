@@ -42,7 +42,8 @@ classDiagram
         -double balance
         -double amountInserted
         -String selectedProductCode
-        +insertMoney(Denomination)
+        +insertCoin(Coin)
+        +insertNote(Note)
         +selectProduct(String)
         +dispenseProduct()
         +dispenseChange()
@@ -52,7 +53,7 @@ classDiagram
 
     class VendingMachineState {
         <<interface>>
-        +insertMoney(Denomination)
+        +insertMoney(double)
         +selectProduct(String)
         +dispenseProduct()
         +dispenseChange()
@@ -61,7 +62,7 @@ classDiagram
 
     class IdleState {
         -VendingMachine machine
-        +insertMoney(Denomination)
+        +insertMoney(double)
         +selectProduct(String)
     }
 
@@ -110,18 +111,18 @@ classDiagram
         +isAvailable()
     }
 
-    class Denomination {
-        <<abstract>>
-        -double denominationValue
-        +getDenominationValue()
-    }
-
     class Coin {
-        +Coin(double)
+        <<enumeration>>
+        +FIVE(5.0)
+        +TEN(5.0)
+        +getValue()
     }
 
     class Note {
-        +Note(double)
+        <<enumeration>>
+       +TEN(5.0)
+       +FIFTY(50.0)
+       +HUNDRED(100.0)
     }
 
     VendingMachine --> VendingMachineState
@@ -137,8 +138,6 @@ classDiagram
     InventoryService --> InventoryRepository
     InventoryRepository <|.. InMemoryInventoryRepository
     InMemoryInventoryRepository --> Item
-    Denomination <|-- Coin
-    Denomination <|-- Note
 ```
 
 ### Other considerations
