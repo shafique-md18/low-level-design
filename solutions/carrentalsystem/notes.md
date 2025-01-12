@@ -234,3 +234,7 @@ This way you:
 2. Show prioritization skills
 3. Prove system thinking when needed
 4. Manage time effectively
+
+Other concurrency considerations - 
+1. Optimistic vs Pessimistic locking
+2. Transaction isolation levels
