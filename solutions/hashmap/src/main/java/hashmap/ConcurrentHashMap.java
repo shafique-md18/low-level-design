@@ -6,7 +6,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class HashMap<K, V> {
+public class ConcurrentHashMap<K, V> {
     // We always support hashmap capacity in powers of 2
     private final int INITIAL_CAPACITY = 1 << 4;
     // This is maximum power of two in integer which is position, 1 << 31 is negative
@@ -20,11 +20,11 @@ public class HashMap<K, V> {
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
 
-    public HashMap() {
+    public ConcurrentHashMap() {
         buckets = newBuckets(INITIAL_CAPACITY);
     }
 
-    public HashMap(int capacity) {
+    public ConcurrentHashMap(int capacity) {
         capacity = convertToValidCapacity(capacity);
         buckets = newBuckets(capacity);
     }
