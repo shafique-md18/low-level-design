@@ -238,3 +238,4 @@ This way you:
 Other concurrency considerations - 
 1. Optimistic vs Pessimistic locking
 2. Transaction isolation levels
+3. State pattern for reservations/vehicles if -> Interviewer asks how to handle complex booking lifecycle
