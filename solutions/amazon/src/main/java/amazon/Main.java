@@ -22,35 +22,37 @@ public class Main {
         Product samsung_s23_ultra = new Product.Builder()
                 .withId(UUID.randomUUID().toString())
                 .withName("Samsung Galaxy S23 Ultra (256GB)")
+                .withAvailableQuantity(5)
+                .withAvailableQuantity(10)
+                .withPrice(92500)
                 .build();
 
         Product queen_size_bedsheet = new Product.Builder()
                 .withId(UUID.randomUUID().toString())
                 .withName("Queen BedSheet Cotton")
+                .withAvailableQuantity(5)
+                .withAvailableQuantity(10)
+                .withPrice(340)
                 .build();
 
         InventoryService inventoryService = new InventoryService(new HashMap<>());
-        Item productItem1 = new Item.Builder().withId(UUID.randomUUID().toString())
-                .withProduct(samsung_s23_ultra).withQuantity(5).withPricePerUnit(92500).build();
-        inventoryService.upsertItem(productItem1);
-        Item productItem2 = new Item.Builder().withId(UUID.randomUUID().toString())
-                .withProduct(queen_size_bedsheet).withQuantity(15).withPricePerUnit(340).build();
-        inventoryService.upsertItem(productItem2);
+        inventoryService.upsertProduct(samsung_s23_ultra);
+        inventoryService.upsertProduct(queen_size_bedsheet);
 
         OrderService orderService = new OrderService(new HashMap<>());
         ShoppingService shoppingService = new ShoppingService(inventoryService, orderService, customers);
 
-        Map<String, Item> cartItems = new HashMap<>();
-        Item cartItem1 = new Item.Builder().withId(productItem1.getId())
-                .withProduct(productItem1.getProduct())
+        Map<String, CartItem> cartItems = new HashMap<>();
+        CartItem cartItem1 = new CartItem.Builder()
+                .withProduct(samsung_s23_ultra)
                 .withQuantity(2)
-                .withPricePerUnit(productItem1.getPricePerUnit()).build();
-        Item cartItem2 = new Item.Builder().withId(productItem2.getId())
-                .withProduct(productItem2.getProduct())
+                .build();
+        CartItem cartItem2 = new CartItem.Builder()
+                .withProduct(queen_size_bedsheet)
                 .withQuantity(3)
-                .withPricePerUnit(productItem2.getPricePerUnit()).build();
-        cartItems.put(cartItem1.getId(), cartItem1);
-        cartItems.put(cartItem2.getId(), cartItem2);
+                .build();
+        cartItems.put(cartItem1.getProduct().getId(), cartItem1);
+        cartItems.put(cartItem2.getProduct().getId(), cartItem2);
         Cart cart = new Cart(UUID.randomUUID().toString(), customer, cartItems);
 
         Order order = shoppingService.placeOrder(cart, new UPIPaymentProcessor());

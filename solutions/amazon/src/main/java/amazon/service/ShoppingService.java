@@ -1,9 +1,6 @@
 package amazon.service;
 
-import amazon.model.Cart;
-import amazon.model.Customer;
-import amazon.model.Item;
-import amazon.model.Order;
+import amazon.model.*;
 import amazon.payment.PaymentProcessor;
 
 import java.util.List;
@@ -24,18 +21,18 @@ public class ShoppingService {
         this.customers.put(customer.getId(), customer);
     }
 
-    public List<Item> searchProducts(String keyword) {
-        return inventoryService.getAllItems().stream()
-                .filter(item ->  item.getProduct().getName().contains(keyword)).toList();
+    public List<Product> searchProducts(String keyword) {
+        return inventoryService.getAllProduct().stream()
+                .filter(product ->  product.getName().contains(keyword)).toList();
     }
 
     public Order placeOrder(Cart cart, PaymentProcessor paymentProcessor) {
         // TODO: Validate all items has enough quantity in the inventory
 
         // Update the inventory to decrement the quantity
-        for (Item item : cart.getItems().values()) {
-            Item updatedItem = inventoryService.getItem(item.getId());
-            updatedItem.setQuantity(updatedItem.getQuantity() - item.getQuantity());
+        for (CartItem item : cart.getItems().values()) {
+            Product updatedProduct = inventoryService.getProduct(item.getProduct().getId());
+            updatedProduct.setAvailableQuantity(updatedProduct.getAvailableQuantity() - item.getQuantity());
         }
 
         Order order = orderService.createOrder(cart);

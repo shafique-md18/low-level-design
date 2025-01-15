@@ -5,9 +5,9 @@ import java.util.Map;
 public class Cart {
     private final String id;
     private Customer customer;
-    private Map<String, Item> items;
+    private Map<String, CartItem> items;
 
-    public Cart(String id, Customer customer, Map<String, Item> items) {
+    public Cart(String id, Customer customer, Map<String, CartItem> items) {
         this.id = id;
         this.items = items;
         this.customer = customer;
@@ -17,12 +17,12 @@ public class Cart {
         return id;
     }
 
-    public Map<String, Item> getItems() {
+    public Map<String, CartItem> getItems() {
         return items;
     }
 
-    public void addItem(Item item) {
-        items.put(item.getId(), item);
+    public void addItem(CartItem item) {
+        items.put(item.getProduct().getId(), item);
     }
 
     public void removeCartItem(String itemId) {
@@ -31,7 +31,7 @@ public class Cart {
 
     public double getCartTotal() {
         return items.values().stream()
-                .mapToDouble(item -> item.getQuantity() * item.getPricePerUnit())
+                .mapToDouble(item -> item.getQuantity() * item.getProduct().getPrice())
                 .sum();
     }
 }

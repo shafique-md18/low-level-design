@@ -1,16 +1,20 @@
 package amazon.model;
 
+import java.util.concurrent.locks.ReadWriteLock;
+
 public class Product {
     private final String id;
     private String name;
     private String description;
-    private ProductCategory category;
+    private double price;
+    private int availableQuantity;
 
     private Product(Builder builder) {
         id = builder.id;
         name = builder.name;
         description = builder.description;
-        category = builder.category;
+        price = builder.price;
+        availableQuantity = builder.availableQuantity;
     }
 
     public String getId() {
@@ -33,19 +37,28 @@ public class Product {
         this.description = description;
     }
 
-    public ProductCategory getCategory() {
-        return category;
+    public double getPrice() {
+        return price;
     }
 
-    public void setCategory(ProductCategory category) {
-        this.category = category;
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public int getAvailableQuantity() {
+        return availableQuantity;
+    }
+
+    public void setAvailableQuantity(int availableQuantity) {
+        this.availableQuantity = availableQuantity;
     }
 
     public static final class Builder {
         private String id;
         private String name;
         private String description;
-        private ProductCategory category;
+        private double price;
+        private int availableQuantity;
 
         public Builder() {
         }
@@ -65,8 +78,13 @@ public class Product {
             return this;
         }
 
-        public Builder withCategory(ProductCategory category) {
-            this.category = category;
+        public Builder withPrice(double price) {
+            this.price = price;
+            return this;
+        }
+
+        public Builder withAvailableQuantity(int availableQuantity) {
+            this.availableQuantity = availableQuantity;
             return this;
         }
 

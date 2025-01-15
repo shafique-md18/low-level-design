@@ -1,30 +1,30 @@
 package amazon.service;
 
-import amazon.model.Item;
+import amazon.model.Product;
 
 import java.util.List;
 import java.util.Map;
 
 public class InventoryService {
-    private Map<String, Item> items;
+    private Map<String, Product> products;
 
-    public InventoryService(Map<String, Item> items) {
-        this.items = items;
+    public InventoryService(Map<String, Product> products) {
+        this.products = products;
     }
 
-    public void upsertItem(Item item) {
-        this.items.put(item.getId(), item);
+    public void upsertProduct(Product item) {
+        this.products.put(item.getId(), item);
     }
 
-    public void removeItem(String itemId) {
-        this.items.remove(itemId);
+    public void removeProduct(String productId) {
+        this.products.remove(productId);
     }
 
-    public Item getItem(String itemId) {
-        return this.items.get(itemId);
+    public Product getProduct(String productId) {
+        return this.products.get(productId);
     }
 
-    public List<Item> getAllItems() {
-        return this.items.values().stream().toList();
+    public List<Product> getAllProduct() {
+        return this.products.values().stream().toList();
     }
 }
