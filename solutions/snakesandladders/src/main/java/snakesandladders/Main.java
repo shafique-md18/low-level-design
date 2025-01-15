@@ -1,4 +1,4 @@
-package tictactoe;
+package snakesandladders;
 
 public class Main {
 }
