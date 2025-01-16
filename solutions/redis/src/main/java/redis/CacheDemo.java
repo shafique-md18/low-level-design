@@ -1,5 +1,6 @@
 package redis;
 
+import redis.factory.CacheFactory;
 import redis.pair.Pair;
 
 import java.util.Arrays;

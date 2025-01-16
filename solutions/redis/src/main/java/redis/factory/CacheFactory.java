@@ -1,5 +1,6 @@
-package redis;
+package redis.factory;
 
+import redis.Cache;
 import redis.eviction.LRUCacheEvictionPolicy;
 import redis.storage.InMemoryMapCacheStorage;
 
