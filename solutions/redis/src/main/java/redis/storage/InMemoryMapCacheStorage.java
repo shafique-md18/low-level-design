@@ -2,7 +2,9 @@ package redis.storage;
 
 import redis.exception.StorageFullException;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -38,6 +40,11 @@ public class InMemoryMapCacheStorage<K, V> implements CacheStorage<K, V> {
     @Override
     public V remove(K key) {
         return cache.remove(key);
+    }
+
+    @Override
+    public Set<K> keys() {
+        return Collections.unmodifiableSet(cache.keySet());
     }
 
     private boolean isStorageFull() {

@@ -4,6 +4,7 @@ import redis.eviction.EvictionPolicy;
 import redis.exception.StorageFullException;
 import redis.storage.CacheStorage;
 
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Cache<K, V> {
@@ -58,5 +59,9 @@ public class Cache<K, V> {
         } finally {
             lock.unlock();
         }
+    }
+
+    public Set<K> keys() {
+        return cacheStorage.keys();
     }
 }
