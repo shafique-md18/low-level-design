@@ -27,3 +27,5 @@
 
 
 ### Other considerations:
+1. How to properly take care of run/ball types like score and dismissals along with cricket rules?
+2. How to support different types of matches like T20, ODI, etc.
