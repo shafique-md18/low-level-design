@@ -144,7 +144,9 @@ public class ConcurrentHashMap<K, V> {
 
     // To fetch the next (including current) integer which is power of 2
     private int convertToValidCapacity(int capacity) {
+        // Subtracting 1 to handle capacity which is already power of 2
         int n = capacity - 1;
+        // We're trying to fill all bits to the right of the leftmost 1 with 1s
         n |= (n >> 1);
         n |= (n >> 2);
         n |= (n >> 4);
