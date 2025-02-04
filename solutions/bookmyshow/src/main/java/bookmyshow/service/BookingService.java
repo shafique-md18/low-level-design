@@ -45,21 +45,28 @@ public class BookingService {
         return seatInformation;
     }
 
-    public void bookTickets(User user, Show show, List<Seat> seats) {
+    public Booking bookTickets(User user, Show show, List<Seat> seats) {
         if (seats.isEmpty()) {
             throw new InvalidSeatSelection("Cannot book empty seats");
         }
 
-        validateSeatsAvailability(show, seats);
+        // Try to hold all seats atomically
+        if (!show.tryHoldSeats(seats)) {
+            throw new UnavailableSeatException("Some seats are not available");
+        }
 
-        Booking booking = createBooking(user, show, seats);
+        try {
+            Booking booking = createBooking(user, show, seats);
 
-        seats.forEach(show::holdSeat);
-
-        Transaction transaction = transactionService.initiateTransaction(booking);
-        processTransaction(transaction, show, seats, booking);
-
-        bookings.put(booking.getId(), booking);
+            Transaction transaction = transactionService.initiateTransaction(booking);
+            processTransaction(transaction, show, seats, booking);
+            return booking;
+        } catch (Exception e) {
+            // Release holds on any exception
+            // Todo: BUG - It is possible that we might release seats for some other booking
+            show.releaseSeats(seats);
+            throw e;
+        }
     }
 
     private double calculateTotalPrice(List<Seat> selectedSeats) {
@@ -81,7 +88,7 @@ public class BookingService {
 
     private void processTransaction(Transaction transaction, Show show, List<Seat> seats, Booking booking) {
         if (transaction.getStatus().equals(TransactionStatus.SUCCESSFUL)) {
-            seats.forEach(show::bookSeat);
+            show.bookSeats(seats);
             booking.setStatus(BookingStatus.CONFIRMED);
         } else {
             booking.setStatus(BookingStatus.PAYMENT_FAILED);

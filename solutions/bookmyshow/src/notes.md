@@ -273,3 +273,141 @@ classDiagram
    * Add complexity only when asked
    * It's better to have a simple working solution than a complex incomplete one
    * You can always mention "In production, I would add..."
+
+### Other Notes
+
+Seat Lock - 
+```java
+public class Show {
+    private final ConcurrentHashMap<String, SeatLock> seatLocks; // seat_id -> SeatLock
+    
+    private static class SeatLock {
+        private final String lockId;  // booking ID or hold ID
+        private final SeatStatus status;
+        private final Instant expiryTime;
+        
+        public SeatLock(String lockId, SeatStatus status, Instant expiryTime) {
+            this.lockId = lockId;
+            this.status = status;
+            this.expiryTime = expiryTime;
+        }
+    }
+
+    public synchronized boolean tryHoldSeats(String bookingId, List<Seat> seats) {
+        // First check if all seats are available
+        for (Seat seat : seats) {
+            if (!isSeatAvailable(seat.getId())) {
+                return false;
+            }
+        }
+
+        // Hold all seats with the bookingId
+        Instant expiryTime = Instant.now().plusSeconds(HOLD_TIMEOUT_SECONDS);
+        for (Seat seat : seats) {
+            seatLocks.put(seat.getId(), 
+                new SeatLock(bookingId, SeatStatus.ON_HOLD, expiryTime));
+        }
+        return true;
+    }
+
+    public void bookSeats(String bookingId, List<Seat> seats) {
+        synchronized(this) {
+            // Verify all seats are held by this booking
+            for (Seat seat : seats) {
+                SeatLock lock = seatLocks.get(seat.getId());
+                if (lock == null || 
+                    !lock.lockId.equals(bookingId) || 
+                    !SeatStatus.ON_HOLD.equals(lock.status)) {
+                    throw new BookingUnholdedSeatException(
+                        "Seat " + seat.getId() + " is not held by this booking");
+                }
+            }
+            
+            // Book all seats
+            for (Seat seat : seats) {
+                seatLocks.put(seat.getId(), 
+                    new SeatLock(bookingId, SeatStatus.BOOKED, null));
+            }
+        }
+    }
+
+    public void releaseSeats(String bookingId, List<Seat> seats) {
+        synchronized(this) {
+            for (Seat seat : seats) {
+                SeatLock lock = seatLocks.get(seat.getId());
+                // Only release if this booking holds the lock
+                if (lock != null && lock.lockId.equals(bookingId) 
+                    && SeatStatus.ON_HOLD.equals(lock.status)) {
+                    seatLocks.remove(seat.getId());
+                }
+            }
+        }
+    }
+
+    private boolean isSeatAvailable(String seatId) {
+        SeatLock lock = seatLocks.get(seatId);
+        if (lock == null) {
+            return true;
+        }
+        
+        if (SeatStatus.ON_HOLD.equals(lock.status)) {
+            return lock.expiryTime.isBefore(Instant.now());
+        }
+        
+        return false;
+    }
+}
+```
+
+Using AtomicReference - 
+```java
+public class Show {
+    private final String id;
+    private final Movie movie;
+    private final Screen screen;
+    private final LocalDateTime startTime;
+    private final LocalDateTime endTime;
+    // Key change: Using ConcurrentHashMap with AtomicReference for thread-safe updates
+    private final ConcurrentHashMap<String, AtomicReference<SeatStatus>> seatStatusMap;
+    
+    public synchronized boolean tryHoldSeats(List<Seat> seats) {
+        // First verify all seats are available
+        for (Seat seat : seats) {
+            AtomicReference<SeatStatus> statusRef = seatStatusMap.get(seat.getId());
+            if (statusRef == null || !SeatStatus.AVAILABLE.equals(statusRef.get())) {
+                return false;
+            }
+        }
+        
+        // If all available, hold them atomically
+        for (Seat seat : seats) {
+            seatStatusMap.get(seat.getId()).set(SeatStatus.ON_HOLD);
+        }
+        return true;
+    }
+
+    public void confirmBooking(List<Seat> seats) {
+        synchronized(this) {
+            // Verify all seats are on hold
+            for (Seat seat : seats) {
+                AtomicReference<SeatStatus> statusRef = seatStatusMap.get(seat.getId());
+                if (!SeatStatus.ON_HOLD.equals(statusRef.get())) {
+                    throw new BookingFailedException("Seat not on hold: " + seat.getId());
+                }
+            }
+            
+            // Book all seats
+            for (Seat seat : seats) {
+                seatStatusMap.get(seat.getId()).set(SeatStatus.BOOKED);
+            }
+        }
+    }
+
+    public void releaseSeats(List<Seat> seats) {
+        for (Seat seat : seats) {
+            AtomicReference<SeatStatus> statusRef = seatStatusMap.get(seat.getId());
+            statusRef.compareAndSet(SeatStatus.ON_HOLD, SeatStatus.AVAILABLE);
+        }
+    }
+}
+```
