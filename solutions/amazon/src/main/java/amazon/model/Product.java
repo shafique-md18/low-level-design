@@ -7,6 +7,15 @@ public class Product {
     private String name;
     private String description;
     private double price;
+    /*
+    Issues with this approach (having quantity associated with product):
+
+        1. Violates Single Responsibility Principle - Product class should only be concerned with product-specific attributes
+        2. Makes it harder to track quantity changes and history
+        3. Concurrency issues when multiple services try to update quantity
+        4. Difficult to implement warehouse/location-specific inventory
+        5. Complicates inventory auditing and reconciliation
+     */
     private int availableQuantity;
 
     private Product(Builder builder) {

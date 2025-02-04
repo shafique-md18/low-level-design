@@ -1,7 +1,5 @@
 package amazon.model;
 
-import bookmyshow.model.User;
-
 public class Order {
     private final String id;
     private final Customer customer;

@@ -27,21 +27,29 @@ public class ShoppingService {
     }
 
     public Order placeOrder(Cart cart, PaymentProcessor paymentProcessor) {
-        // TODO: Validate all items has enough quantity in the inventory
+        try {
+            // TODO: Validate all items has enough quantity in the inventory and decrement quantity
+            // inventoryService.tryReduceQuantity(productQuantities);
 
-        // Update the inventory to decrement the quantity
-        for (CartItem item : cart.getItems().values()) {
-            Product updatedProduct = inventoryService.getProduct(item.getProduct().getId());
-            updatedProduct.setAvailableQuantity(updatedProduct.getAvailableQuantity() - item.getQuantity());
+            // Update the inventory to decrement the quantity - not required if above is implemented
+            for (CartItem item : cart.getItems().values()) {
+                Product updatedProduct = inventoryService.getProduct(item.getProduct().getId());
+                updatedProduct.setAvailableQuantity(updatedProduct.getAvailableQuantity() - item.getQuantity());
+            }
+
+            Order order = orderService.createOrder(cart);
+
+            // Process payment
+            // TODO: if unsuccessful -> inventory should revert back the quantities and update order status as cancelled
+            paymentProcessor.processPayment(cart.getCartTotal());
+
+            return order;
+        } catch (Exception e) {
+            // add product quantity back to inventory service
+            // inventoryService.addQuantity(productQuantities)
         }
 
-        Order order = orderService.createOrder(cart);
-
-        // Process payment
-        // TODO: if unsuccessful -> inventory should revert back the quantities and update order status as cancelled
-        paymentProcessor.processPayment(cart.getCartTotal());
-
-        return order;
+        return null;
     }
 
     public void displayOrderDetails(String orderId) {
