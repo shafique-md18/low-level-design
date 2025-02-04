@@ -15,23 +15,23 @@ public class KafkaDemo {
         broker.addTopic(topic2);
 
         // Create producers
-        Producer producer1 = new Producer(broker);
-        Producer producer2 = new Producer(broker);
+        SimpleProducer producer1 = new SimpleProducer(broker);
+        SimpleProducer producer2 = new SimpleProducer(broker);
 
         // Create consumers
-        Consumer consumer1 = new Consumer(broker);
-        Consumer consumer2 = new Consumer(broker);
-        Consumer consumer3 = new Consumer(broker);
-        Consumer consumer4 = new Consumer(broker);
-        Consumer consumer5 = new Consumer(broker);
+        SimpleConsumer consumer1 = new SimpleConsumer(broker);
+        SimpleConsumer consumer2 = new SimpleConsumer(broker);
+        SimpleConsumer consumer3 = new SimpleConsumer(broker);
+        SimpleConsumer consumer4 = new SimpleConsumer(broker);
+        SimpleConsumer consumer5 = new SimpleConsumer(broker);
 
         // Publishing messages
         System.out.println("Publishing messages...");
-        producer1.send("topic1", "key1", "Message 1".getBytes());
-        producer1.send("topic1", "key2", "Message 2".getBytes());
-        producer2.send("topic1", "key3", "Message 3".getBytes());
-        producer1.send("topic2", "key4", "Message 4".getBytes());
-        producer2.send("topic2", "key5", "Message 5".getBytes());
+        producer1.offer("topic1", "Message 1".getBytes());
+        producer1.offer("topic1", "Message 2".getBytes());
+        producer2.offer("topic1", "Message 3".getBytes());
+        producer1.offer("topic2", "Message 4".getBytes());
+        producer2.offer("topic2", "Message 5".getBytes());
 
         // Reading from topic1 (all consumers)
         System.out.println("\nReading from topic1 for two messages:");
@@ -64,16 +64,16 @@ public class KafkaDemo {
         broker.addTopic(topic1);
 
         // Create 2 producers and 2 consumers
-        Producer producer1 = new Producer(broker);
-        Producer producer2 = new Producer(broker);
-        Consumer consumer1 = new Consumer(broker);
-        Consumer consumer2 = new Consumer(broker);
+        SimpleProducer producer1 = new SimpleProducer(broker);
+        SimpleProducer producer2 = new SimpleProducer(broker);
+        SimpleConsumer consumer1 = new SimpleConsumer(broker);
+        SimpleConsumer consumer2 = new SimpleConsumer(broker);
 
         // Producer 1: sends messages 1-5
         Thread p1 = new Thread(() -> {
             for (int i = 1; i <= 5; i++) {
                 String msg = "P1-Message" + i;
-                producer1.send("test-topic", "key", msg.getBytes());
+                producer1.offer("test-topic", msg.getBytes());
                 System.out.println("Producer 1 sent: " + msg);
             }
         });
@@ -82,7 +82,7 @@ public class KafkaDemo {
         Thread p2 = new Thread(() -> {
             for (int i = 6; i <= 10; i++) {
                 String msg = "P2-Message" + i;
-                producer2.send("test-topic", "key", msg.getBytes());
+                producer2.offer("test-topic", msg.getBytes());
                 System.out.println("Producer 2 sent: " + msg);
             }
         });

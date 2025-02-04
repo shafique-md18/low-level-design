@@ -1,7 +1,9 @@
 package kafka;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class Topic {
     private final String id;
@@ -9,16 +11,17 @@ public class Topic {
 
     public Topic(String id) {
         this.id = id;
-        this.messages = new ArrayList<>();
+        this.messages = Collections.synchronizedList(new ArrayList<>());
     }
 
-    public synchronized int append(String key, byte[] value) {
-        Message message = new Message(key, value);
+    public void append(byte[] value) {
+        // If the message should have publisher message creation timestamp or kafka message push timestamp
+        // is a design decision
+        Message message = new Message(UUID.randomUUID().toString(), value);
         messages.add(message);
-        return messages.size() - 1;
     }
 
-    public synchronized List<Message> read(int offset, int maxMessages) {
+    public List<Message> read(int offset, int maxMessages) {
         if (offset >= messages.size()) {
             return new ArrayList<>();
         }
