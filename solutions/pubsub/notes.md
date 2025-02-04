@@ -21,3 +21,65 @@
 ### Class diagram
 
 ### Other considerations
+
+Some optimization on executor:
+1. parallelStream() enables concurrent processing without waiting for each subscriber sequentially
+2. Bounded queue (1000) vs unbounded LinkedBlockingQueue prevents potential OOM
+3. CallerRunsPolicy handles backpressure vs silently queueing tasks
+
+```java 
+private final ExecutorService messageDeliveryExecutor = new ThreadPoolExecutor(
+    5, 20, 60, TimeUnit.SECONDS,
+    new ArrayBlockingQueue<>(1000),
+    new ThreadPoolExecutor.CallerRunsPolicy()
+);
+
+private void notifySubscribers(String topicId, long messageOffset) {
+    Topic topic = topicManager.getTopic(topicId);
+    List<Subscriber> subscribers = subscriptionManager.getSubscribers(topic.getId());
+    
+    subscribers.parallelStream()
+        .filter(subscriber -> subscriptionManager.getOffset(topic.getId(), subscriber.getId()) == messageOffset)
+        .forEach(subscriber -> {
+            messageDeliveryExecutor.submit(() -> {
+                try {
+                    Message msg = topic.getMessage(messageOffset);
+                    subscriber.onMessage(msg)
+                        .thenAccept(acknowledged -> {
+                            if (acknowledged) {
+                                subscriptionManager.compareAndSetOffset(topic.getId(), subscriber.getId(), messageOffset, messageOffset + 1);
+                            }
+                        });
+                } catch (Exception e) {
+                    log.error("Failed to process message for subscriber: {}", subscriber.getId(), e);
+                }
+            });
+        });
+}
+```
+
+Key optimization points to discuss:
+
+Performance:
+1. Batching notifications
+2. Separate thread pools per topic
+3. Async offset lookups
+4. Configurable thread pool parameters
+
+Reliability:
+1. Retry mechanism with backoff
+2. Dead letter queue
+3. At-least-once delivery guarantees
+4. Circuit breaker for failing subscribers
+
+Monitoring:
+1. Delivery success/failure metrics
+2. Queue size monitoring
+3. Latency tracking
+4. Thread pool saturation alerts
+
+Resource Management:
+1. Bounded queues
+2. Backpressure mechanisms
+3. Topic-based partitioning
+4. Memory consumption controls
