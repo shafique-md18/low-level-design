@@ -1,11 +1,37 @@
 package tail;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.LinkedList;
 
 public class CustomTail {
-    public static void printLastNLines(String filePath, int n) {
+    public static void printLastNLines(String filePath, int n) throws IOException {
+        printLastNLinesInternal(filePath, n);
+    }
 
+    public void printLastNLinesNaive(String filePath, int n) throws IOException {
+        // Using LinkedList for efficient add/remove from both ends
+        LinkedList<String> lastNLines = new LinkedList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+
+            // Read the file line by line
+            while ((line = reader.readLine()) != null) {
+                lastNLines.add(line);
+
+                // If we have more lines than needed, remove the first one
+                if (lastNLines.size() > n) {
+                    lastNLines.removeFirst();
+                }
+            }
+        }
+
+        for (String s : lastNLines) {
+            System.out.println(s);
+        }
     }
 
     private static long printLastNLinesInternal(String filePath, int n) throws IOException {
