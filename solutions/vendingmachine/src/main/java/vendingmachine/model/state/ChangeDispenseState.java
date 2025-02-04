@@ -40,8 +40,8 @@ public class ChangeDispenseState implements VendingMachineState {
             this.machine.setSelectedProductCode(null);
             System.out.println("Cancelled transaction, please try again.");
         }
+        this.machine.setBalance(this.machine.getBalance() + this.machine.getAmountInserted() - changeToDispense);
         this.machine.setAmountInserted(0);
-        this.machine.setBalance(this.machine.getBalance() + this.machine.getAmountInserted());
         this.machine.setState(new IdleState(this.machine));
     }
 
@@ -53,8 +53,8 @@ public class ChangeDispenseState implements VendingMachineState {
         }
     }
 
-    private boolean hasSufficientFundsToDispenseChange(double itemPrice) {
-        return this.machine.getBalance() + this.machine.getAmountInserted() >= itemPrice;
+    private boolean hasSufficientFundsToDispenseChange(double changeToDispense) {
+        return this.machine.getBalance() + this.machine.getAmountInserted() >= changeToDispense;
     }
 
     private double getChangeToDispense() {
