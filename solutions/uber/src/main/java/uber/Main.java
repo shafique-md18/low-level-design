@@ -22,11 +22,11 @@ public class Main {
         rideService.addCustomer(customer);
         drivers.forEach(rideService::addDriver);
 
-        rideService.requestRide(customer, new Location(5.25, 45.90), new Location(80.60, 3.75));
+        Ride requestedRide = rideService.requestRide(customer, new Location(5.25, 45.90), new Location(80.60, 3.75));
 
         Driver driver1 = drivers.getFirst();
 
-        Ride ride = Objects.requireNonNull(rideService.getRequestedRides().peek());
+        Ride ride = Objects.requireNonNull(rideService.getRequestedRides().getFirst());
 
         rideService.acceptRide(driver1, ride);
 

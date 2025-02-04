@@ -3,11 +3,11 @@ package uber.service;
 import uber.model.*;
 import uber.payment.PaymentProcessor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,7 +16,9 @@ public class RideService {
     private Map<String, Customer> customers;
     private Map<String, Driver> drivers;
     private Map<String, Ride> rides;
-    private Queue<Ride> requestedRides;
+    // If sorting is required, can use ConcurrentSkipListMap
+    // In real world, we would use Kafka
+    private Map<String, Ride> requestedRides;
     private Map<String, ReentrantLock> rideLocks = new ConcurrentHashMap<>();
 
     private RideService(Builder builder) {
@@ -34,7 +36,7 @@ public class RideService {
         drivers.put(driver.getId(), driver);
     }
 
-    public void requestRide(Customer customer, Location source, Location destination) {
+    public Ride requestRide(Customer customer, Location source, Location destination) {
         Ride ride = new Ride.Builder()
                 .withId(UUID.randomUUID().toString())
                 .withPassenger(customer)
@@ -44,8 +46,9 @@ public class RideService {
                 .withFare(0.0)
                 .build();
         rides.put(ride.getId(), ride);
-        requestedRides.add(ride);
+        requestedRides.put(ride.getId(), ride);
         notifyDrivers(ride);
+        return ride;
     }
 
     public void acceptRide(Driver driver, Ride ride) {
@@ -60,7 +63,7 @@ public class RideService {
                 throw new IllegalStateException("Cannot accept ride which is not in requested state");
             }
             // Remove from requested queue first to prevent other drivers from accepting
-            if (!requestedRides.remove(ride)) {
+            if (requestedRides.remove(ride.getId()) == null) {
                 throw new IllegalStateException("Ride already accepted by another driver");
             }
             ride.setDriver(driver);
@@ -96,8 +99,8 @@ public class RideService {
         notifyDriver(ride);
     }
 
-    public Queue<Ride> getRequestedRides() {
-        return this.requestedRides;
+    public List<Ride> getRequestedRides() {
+        return new ArrayList<>(requestedRides.values());
     }
 
     private double calculateFare(Ride ride) {
@@ -159,7 +162,7 @@ public class RideService {
         private Map<String, Customer> customers = new ConcurrentHashMap<>();
         private Map<String, Driver> drivers = new ConcurrentHashMap<>();
         private Map<String, Ride> rides = new ConcurrentHashMap<>();
-        private Queue<Ride> requestedRides = new ConcurrentLinkedQueue<>();
+        private Map<String, Ride> requestedRides = new ConcurrentHashMap<>();
 
         public Builder() {
         }
@@ -179,7 +182,7 @@ public class RideService {
             return this;
         }
 
-        public Builder withRequestedRides(Queue<Ride> requestedRides) {
+        public Builder withRequestedRides(Map<String, Ride> requestedRides) {
             this.requestedRides = requestedRides;
             return this;
         }
