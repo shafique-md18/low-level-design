@@ -2,35 +2,28 @@
 
 ### Requirements
 
-The vending machine should maintain an inventory of products with their respective prices and quantities
-Each product slot in the machine has a unique code (e.g., A1, A2, B1, B2)
-The machine should accept different denominations of coins/notes (e.g., $1, $5, $10, $20)
+1. The system should allow users to create accounts and manage their profile information.
+2. Users should be able to create groups and add other users to the groups.
+3. Users should be able to add expenses within a group, specifying the amount, description, and participants.
+4. The system should automatically split the expenses among the participants based on their share.
+5. Users should be able to view their individual balances with other users and settle up the balances.
+6. The system should support different split methods, such as equal split, percentage split, and exact amounts.
+7. Users should be able to view their transaction history and group expenses.
+8. The system should handle concurrent transactions and ensure data consistency.
 
 #### Core operations:
 
-1. Users can select a product using its code
-2. Users can insert money
-3. Machine should calculate remaining change
-4. Machine should dispense the product
-5. Machine should return change if necessary
+1. Manage users.
+2. Manage user groups.
+3. Add and track expense.
+4. Expense should be split automatically.
+5. Show balance for each user in individual groups.
+6. Concurrency.
 
-#### Constraints:
+##### Other operations:
 
-1. If a product is out of stock, the machine should notify the user
-2. If insufficient money is inserted, the machine should ask for more money or allow cancellation
-3. If the machine cannot provide exact change, it should not proceed with the transaction
-4. Support for canceling a transaction mid-way
-
-##### Additional Features to Consider:
-
-1. The machine should maintain a minimum amount of change
-2. Mechanism to refill products and money
-3. Basic maintenance operations (e.g., checking inventory, collecting money)
-4. Error handling for:
-   1. Invalid product selection 
-   2. Machine out of change 
-   3. Product stuck during dispensing 
-   4. Invalid currency
+1. Different ways to split expenses.
+2. Transaction history for each group and user.
 
 ### Class diagram
 
