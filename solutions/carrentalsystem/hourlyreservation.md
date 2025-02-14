@@ -17,7 +17,7 @@ class Car {
     // Constructor, getters, setters
 }
 
-class User {
+class stockexchange.User {
     private String id;
     private String name;
     private String email;
@@ -29,7 +29,7 @@ class User {
 class Reservation {
     private String id;
     private Car car;
-    private User user;
+    private stockexchange.User user;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private double totalPrice;
@@ -45,7 +45,7 @@ class Reservation {
 
 class CarRentalSystem {
     private Map<String, Car> cars;
-    private Map<String, User> users;
+    private Map<String, stockexchange.User> users;
     private Map<String, Reservation> reservations;
     
     public List<Car> getAvailableCars(CarType type, 
@@ -60,7 +60,7 @@ class CarRentalSystem {
     public Reservation makeReservation(String userId, String carId,
                                      LocalDateTime startTime, 
                                      LocalDateTime endTime) {
-        User user = users.get(userId);
+        stockexchange.User user = users.get(userId);
         Car car = cars.get(carId);
         
         if (user == null || car == null || 

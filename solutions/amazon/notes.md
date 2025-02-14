@@ -16,9 +16,9 @@
 
 ### Other considerations
 1. For simplicity in the first iteration, put product available quantity and price in product itself.
-2. For all order state management happens in order itself. -> Later, we can use State Design Pattern. Order will contain this state and manage it.
+2. For all order state management happens in order itself. -> Later, we can use State Design Pattern. stockexchange.Order will contain this state and manage it.
     ```java
-    public enum OrderStatus {
+    import stockexchange.Order;public enum OrderStatus {
         CREATED, PAID, SHIPPED, DELIVERED, CANCELLED
     }
     
@@ -33,4 +33,4 @@
 3. We can use Observer design pattern for order notifications.
 4. We do not have any id for CartItem because it is just a map of product and quantities purchased.
 5. As we are managing the available product quantities in Product itself, it is easier to handle concurrency using read write locks.
-6. Instead of a generic User interface, using the Customer concrete class for simplicity.
+6. Instead of a generic stockexchange.User interface, using the Customer concrete class for simplicity.

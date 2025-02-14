@@ -73,7 +73,7 @@ public class Main {
         Theatre theatre = new Theatre("theatre1", screens, City.MUMBAI, shows);
         bookingService.addTheatre(theatre);
 
-        // Create User
+        // Create stockexchange.User
         User user = new User("john@example.com", "user1", "John Doe");
 
         try {

@@ -121,7 +121,7 @@ Remember: In an interview, it's better to implement a simpler solution well than
 
 ##### Additional Features to Consider:
 
-1. Separate User for Customer and Admin
+1. Separate stockexchange.User for Customer and Admin
 2. Location management - Pickup and drop
 3. Maintenance and damage traction
 

@@ -17,7 +17,7 @@
 ```mermaid
 classDiagram
     class BookingService {
-        +bookTickets(User, Show, List~Seat~)
+        +bookTickets(stockexchange.User, Show, List~Seat~)
         +getSeatInformation(Show)
     }
 
@@ -44,7 +44,7 @@ classDiagram
 
     class Booking {
         -String id
-        -User user
+        -stockexchange.User user
         -Show show
         -List~Seat~ seats
         -BookingStatus status
@@ -86,7 +86,7 @@ classDiagram
         -Map~String, Theatre~ theatres
         -Map~String, Movie~ movies
         -Map~String, Booking~ bookings
-        +bookTickets(User, Show, List~Seat~)
+        +bookTickets(stockexchange.User, Show, List~Seat~)
         +getSeatInformation(Show)
         +addMovie(Movie)
         +addTheatre(Theatre)
@@ -133,7 +133,7 @@ classDiagram
     class Booking {
         -String id
         -double totalPrice
-        -User user
+        -stockexchange.User user
         -Show show
         -List~Seat~ seats
         -BookingStatus status
@@ -153,7 +153,7 @@ classDiagram
         -TransactionStatus status
     }
 
-    class User {
+    class stockexchange.User {
         -String id
         -String name
         -String email
@@ -224,7 +224,7 @@ classDiagram
     Show --> Movie
     Show --> SeatStatus
     Booking --> Show
-    Booking --> User
+    Booking --> stockexchange.User
     Booking --> Seat
     Booking --> BookingStatus
     Transaction --> Booking
@@ -259,7 +259,7 @@ classDiagram
 5. What to Skip Initially
     * Payment processing
     * Seat hold mechanism
-    * User management
+    * stockexchange.User management
     * Complex state machines
     * Caching
     * Distributed systems concerns
